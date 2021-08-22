@@ -7,6 +7,8 @@
 const express = require('express');
 const app = express();
 
+
+
 //path (pour faire des routes)
 const path = require('path');
 
@@ -26,8 +28,7 @@ const limiter = rateLimit({
 /**
  * Database
  */
-//mongoose ( pour la database)
-const mongoose = require('mongoose');
+const dataBase = require("./models");
 
 /**
  * Declaration des routes
@@ -37,18 +38,13 @@ const messagerieRoutes = require('./routes/messagerie');
 // user
 const userRoutes = require('./routes/user');
 
+const commentRoutes = require ('./routes/comment')
+
 /**
  * Mise en place
  */
 // utilisation du module 'dotenv' pour masquer les informations de connexion à la base de données à l'aide de variables d'environnement /!\ SECURITE
 require('dotenv').config();
-
-// Connection à la base de données MongoDB 
-mongoose.connect(process.env.MAN_CON,
-  { useNewUrlParser: true,
-    useUnifiedTopology: true })
-  .then(() => console.log('Connexion à MongoDB réussie !'))
-  .catch(() => console.log('Connexion à MongoDB échouée !'));
 
 /**
  * Lancement de l'app
@@ -104,6 +100,8 @@ app.use(nocache());
 //limit le nombre de connections
 app.use(limiter);
 
+dataBase.sequelize.sync(); // Synchronisation de la base de données grâce à Sequelize
+
 
   
 // Gestion de la ressource image de façon statique
@@ -118,6 +116,7 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
  app.use('/images', express.static(path.join(__dirname, 'images')));
  app.use('/api/messagerie', messagerieRoutes);
  app.use('/api/auth', userRoutes);
+ app.use("/api/comments", commentRoutes);
  
 
  /**

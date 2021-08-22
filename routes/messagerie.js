@@ -21,7 +21,7 @@ const multer = require("../middleware/multer-config")
 router.post('/publier', auth, multer, messagerieCtrl.publier);
 
 // Commente un message sur le fil d'actualité
-router.post('/coment/:id', auth, multer, messagerieCtrl.coment);
+//router.post('/coment/:id', auth, multer, messagerieCtrl.coment);
 
 // Récupére le fil d'actualité
 router.get('/', auth, multer, messagerieCtrl.update);
