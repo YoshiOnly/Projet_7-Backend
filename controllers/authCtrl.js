@@ -13,12 +13,11 @@ exports.signup = (req, res, next) => {
     const mailRegex = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
     const pwdRegex  = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/  
 
-  if (nameRegex.test(req.body.userName) && nameRegex.test(req.body.userFirstName) && mailRegex.test(req.body.email) && pwdRegex.test(req.body.password)) {
+  if (nameRegex.test(req.body.userName) && mailRegex.test(req.body.email) && pwdRegex.test(req.body.password)) {
       bcrypt.hash(req.body.password, 10)    // on hashe le mot de passe avec un salt de 10                                               
         .then(hash => {                                                         
           const user = new User({ 
-            userName:   req.body.userName,
-            userFirstName: req.body.userFirstName,                                                        
+            userName:   req.body.userName,                                                        
             email:      req.body.email,     // on sauve un mail encodé
             password:   hash                // et on assigne le hash obtenu comme valeur de la propriété password de l'objet user 
           });
@@ -61,7 +60,6 @@ exports.login = (req, res, next) => {
         userId:     user.id,
         role:       user.isAdmin,
         userName :  user.userName,
-        userFirstName: user.userFirstName,
         token: jwt.sign( { userId: user.id }, process.env.TKN_SECRET, { expiresIn: '24h' } )
       })
     })

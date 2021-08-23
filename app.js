@@ -1,125 +1,33 @@
-/**
- * Application
- */
+// Centre de lAPI  
 
-// Declaration des packages:
-// express (type d'app)
-const express = require('express');
-const app = express();
+const express       = require("express");
+const bodyParser    = require("body-parser");
+const cors          = require("cors");
+const helmet        = require("helmet");
+const path          = require("path");
+const auth          = require("./middleware/auth");
+const app           = express();
 
+const dataBase      = require("./models");
 
+const authRoutes    = require("./routes/auth")
+const userRoutes    = require("./routes/user")
+const messageRoutes = require("./routes/message")
+const commentRoutes = require("./routes/comment")
 
-//path (pour faire des routes)
-const path = require('path');
-
-//helmet (pour les header) /!\ SECURITE
-const helmet = require('helmet');
-//cookie-session ( pour les cookies) /!\ SECURITE
-const session = require('cookie-session');
-// No cache pour le cache /!\ SECURITE
-const nocache = require('nocache');
-//express-rate-limit (pour limiter le nombre de connection (protection DDOS)) /!\ SECURITE
-const rateLimit = require("express-rate-limit");
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-
-/**
- * Database
- */
-const dataBase = require("./models");
-
-/**
- * Declaration des routes
- */
-// messagerie
-const messagerieRoutes = require('./routes/messagerie');
-// user
-const userRoutes = require('./routes/user');
-
-const commentRoutes = require ('./routes/comment')
-
-/**
- * Mise en place
- */
-// utilisation du module 'dotenv' pour masquer les informations de connexion à la base de données à l'aide de variables d'environnement /!\ SECURITE
-require('dotenv').config();
-
-/**
- * Lancement de l'app
- */
-
-//app.use((req, res) => {
-//    res.json({ message: 'Votre requête a bien été reçue !' }); 
-// });
-
- // Middleware Header pour contourner les erreurs en débloquant certains systèmes de sécurité CORS, afin que tout le monde puisse faire des requetes depuis son navigateur
-app.use((req, res, next) => {
-    // on indique que les ressources peuvent être partagées depuis n'importe quelle origine /?\ SECURITE
-    res.setHeader('Access-Control-Allow-Origin', '*'); 
-    // on indique les entêtes qui seront utilisées après la pré-vérification cross-origin afin de donner l'autorisation
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
-    // on indique les méthodes autorisées pour les requêtes HTTP
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    // on autorise ce serveur à fournir des scripts pour la page visitée
-    res.setHeader('Content-Security-Policy', "default-src 'self'");
-    next();
-  });
-
-/**
- * Middleware
- */
-// Options pour sécuriser les cookies /!\ SECURITE
-const expiryDate = new Date(Date.now() + 3600000); // 1 heure (60 * 60 * 1000)
-
-app.use(session({
-  name: 'session',
-  secret: process.env.SEC_SES,
-  cookie: {
-    secure: true,
-    httpOnly: true,
-    domain: 'http://localhost:3000',
-    expires: expiryDate
-  }
-}));
-
-
- // Middleware qui permet de parser les requêtes envoyées par le client ( utilisation de express rendant body-parsser inutile)
- app.use(express.urlencoded({ extended: true }));
- app.use(express.json());
-
-  
-// Sécuriser Express en définissant divers en-têtes HTTP - https://www.npmjs.com/package/helmet#how-it-works
-// On utilise helmet pour plusieurs raisons notamment la mise en place du X-XSS-Protection afin d'activer le filtre de script intersites(XSS) dans les navigateurs web
 app.use(helmet());
+app.use(cors());
 
-//Désactive la mise en cache du navigateur
-app.use(nocache());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-//limit le nombre de connections
-app.use(limiter);
+dataBase.sequelize.sync();   // Synchronisation de la base de données grâce à Sequelize
 
-dataBase.sequelize.sync(); // Synchronisation de la base de données grâce à Sequelize
+app.use("/images",          express.static(path.join(__dirname, "images")));
+app.use("/api/auth",        authRoutes);
 
+app.use("/api/users",       auth, userRoutes);
+app.use("/api/messages",    auth, messageRoutes);
+app.use("/api/comments",    auth, commentRoutes);
 
-  
-// Gestion de la ressource image de façon statique
-// Midleware qui permet de charger les fichiers qui sont dans le repertoire images
-app.use('/images', express.static(path.join(__dirname, 'images')));
-
-
-/**
- * ROUTES
- */
-
- app.use('/images', express.static(path.join(__dirname, 'images')));
- app.use('/api/messagerie', messagerieRoutes);
- app.use('/api/auth', userRoutes);
- app.use("/api/comments", commentRoutes);
- 
-
- /**
- * Export
- */
- module.exports = app;
+module.exports = app
