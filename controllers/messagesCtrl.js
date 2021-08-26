@@ -2,20 +2,21 @@ const db = require("../models")
 const Message   = db.messages
 const User      = db.users
 const Comment   = db.comments
+const fs = require('fs');
 
+const mongoose = require('mongoose');
 // Routes CRUD : Create, Read, Update, Delete.
 
 // CREATE
 
 exports.createMessage = (req, res, next) => {
-//     if (!req.body.UserId || !req.body.message || !req.body.messageUrl || req.body.message.length > 1500) {
-//         return res.status(400).json({message: "one ore more parameters missing or message too long (max length is 1500"})
-// } else {
-    console.log('ligne 14 req.body' + req.body.messageUrl);
+
     let imagePost = "";
+
     if (req.file) { 
         imagePost = `${req.protocol}://${req.get("host")}/images/${req.file.filename}` 
     }
+
     const message = new Message(
         {
             UserId:     req.body.UserId,
@@ -29,6 +30,52 @@ exports.createMessage = (req, res, next) => {
         .catch(error => res.status(400).json({ error }))
 //}
 };
+
+//modify
+
+
+    exports.modifyMessage = (req, res, next) => {
+        let messageObject = {};
+        req.file ? (
+          // Si la modification contient une image => Utilisation de l'opérateur ternaire comme structure conditionnelle.
+          Message.findOne({
+            where: {id: req.body.messageId}
+          }).then((message) => {
+            // On supprime l'ancienne image du serveur
+            const filename = message.messageUrl.split('/images/')[1]
+            fs.unlinkSync(`images/${filename}`)
+          }),
+          messageObject = {
+            // On modifie les données et on ajoute la nouvelle image
+            ...req.body,
+            messageUrl: `${req.protocol}://${req.get('host')}/images/${
+              req.file.filename
+            }`,
+          }
+        ) : ( // Opérateur ternaire équivalent à if() {} else {} => condition ? Instruction si vrai : Instruction si faux
+          // Si la modification ne contient pas de nouvelle image
+          messageObject = {
+            ...req.body
+          }
+        )
+
+        Message.update(
+            // On applique les paramètre de sauceObject
+            {
+                ...messageObject,
+                id: req.params.id
+            }, {
+              
+              where : {id: req.body.messageId}
+            }
+          )
+          .then(() => res.status(200).json({
+            message: 'Message modifiée !'
+          }))
+          .catch((error) => res.status(400).json({
+            error
+          }))
+      }
 
 // READ
 

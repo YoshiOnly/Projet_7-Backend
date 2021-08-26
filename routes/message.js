@@ -1,3 +1,7 @@
+/**
+ * Route message
+ */
+
 const express       = require("express");
 const router        = express.Router();
 const auth          = require('../middleware/auth');  
@@ -5,6 +9,8 @@ const messageCtrl   = require("../controllers/messagesCtrl");
 const multer        = require("../middleware/multer-config");
 
 router.post("/",            auth,multer,    messageCtrl.createMessage);  // Post - Création des messages avec les images.
+
+router.put("/", auth, multer, messageCtrl.modifyMessage);
 
 router.get("/all/:id",                      messageCtrl.findAllMessagesForOne);
 

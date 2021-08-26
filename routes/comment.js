@@ -1,3 +1,7 @@
+/**
+ * Route comment
+ */
+
 const express = require("express");
 const router = express.Router();
 const commentCtrl = require("../controllers/commentsCtrl");

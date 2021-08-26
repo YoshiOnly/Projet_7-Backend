@@ -1,20 +1,28 @@
-// Centre de lAPI  
+/**
+ * Application
+ */
 
+// Declaration des packages:
 const express       = require("express");
 const bodyParser    = require("body-parser");
 const cors          = require("cors");
-const helmet        = require("helmet");
+
+//sécurité
+const helmet        = require("helmet"); //helmet (pour les header)
 const path          = require("path");
 const auth          = require("./middleware/auth");
 const app           = express();
 
+//Database
 const dataBase      = require("./models");
 
+//Routes
 const authRoutes    = require("./routes/auth")
 const userRoutes    = require("./routes/user")
 const messageRoutes = require("./routes/message")
 const commentRoutes = require("./routes/comment")
 
+//use(sécurité, parser, database, routes)
 app.use(helmet());
 app.use(cors());
 
@@ -30,4 +38,5 @@ app.use("/api/users",       auth, userRoutes);
 app.use("/api/messages",    auth, messageRoutes);
 app.use("/api/comments",    auth, commentRoutes);
 
+//export
 module.exports = app
