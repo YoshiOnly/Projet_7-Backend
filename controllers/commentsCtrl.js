@@ -1,3 +1,7 @@
+/**
+ * Controller comment
+ */
+
 const db        = require("../models");  // les modèles sequelize
 const Comment   = db.comments;              
 const User      = db.users;

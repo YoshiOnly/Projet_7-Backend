@@ -1,3 +1,7 @@
+/**
+ * Controller messages
+ */
+
 const db = require("../models")
 const Message   = db.messages
 const User      = db.users
@@ -154,8 +158,18 @@ exports.deleteMessage = (req, res, next) => {
     
     console.log(req.query.messageUid == req.query.uid || req.query.uid == 1)
     if(req.query.messageUid == req.query.uid || req.query.uid == 1) {
+
+        Message.findOne({
+            where: {id: req.query.messageId}
+          }).then((message) => {
+            // On supprime l'ancienne image du serveur
+            const filename = message.messageUrl.split('/images/')[1]
+            fs.unlinkSync(`images/${filename}`)
+          })
+
         Comment.destroy({ where: { MessageId: req.query.messageId }})
         Message.destroy({ where: { id: req.query.messageId }})
+
         .then((res) => {
                 res.status(200).json({ message: "Message and its comments have been destroyed" })
         })

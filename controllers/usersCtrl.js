@@ -46,7 +46,7 @@ exports.findAllUsers = (req, res, next) => {
     })
 }
 
-// params uid & isAdmin
+// params uid & isAdmin / DELETE
 
 exports.deleteOneUser = (req, res, next) => {
     console.log(" USER DELETION PROCESS ")
@@ -69,6 +69,8 @@ exports.deleteOneUser = (req, res, next) => {
         res.status(401).json({message : " unauthorized "})
     }
 }
+
+//suppression du compte // Delete
 
 exports.deleteMyAccount = (req, res, next) => {
     console.log(" USER ACCOUNT DELETION PROCESS ")

@@ -1,3 +1,4 @@
+// modele class comment pour la base de données.
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {

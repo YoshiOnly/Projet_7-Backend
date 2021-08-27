@@ -1,3 +1,4 @@
+// modele class message pour la base de données.
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
@@ -5,9 +6,9 @@ module.exports = (sequelize, DataTypes) => {
   
     Message.init({
         message: {
-            type: DataTypes.TEXT
+            type: DataTypes.TEXT // content du message
         },
-        messageUrl: {
+        messageUrl: { //Url de l'image
             type: DataTypes.STRING
         }
     }, 

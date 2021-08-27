@@ -1,11 +1,16 @@
+// modele de la base de données.
+
+//packages
 require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
 const Sequelize = require("sequelize");
 const basename = path.basename(__filename);
 
+//const
 const db = {};
 
+//initialisation de la database avec dotenv pour plus de sécurité
 const sequelize = new Sequelize(
         process.env.DB_NAME, 
         process.env.DB_USER, 
@@ -14,6 +19,7 @@ const sequelize = new Sequelize(
             dialect: "mysql", 
             port: process.env.DB_PORT })
 
+// initialisation file system
 fs
     .readdirSync(__dirname)
     .filter(file => {
@@ -30,6 +36,7 @@ Object.keys(db).forEach(modelName => {
     }
 })
 
+// keys
 db.sequelize = sequelize
 db.Sequelize = Sequelize
 
